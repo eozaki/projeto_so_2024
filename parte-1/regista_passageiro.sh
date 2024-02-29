@@ -1,12 +1,12 @@
 #!/bin/bash
 # SO_HIDE_DEBUG=1                   ## Uncomment this line to hide all @DEBUG statements
 # SO_HIDE_COLOURS=1                 ## Uncomment this line to disable all escape colouring
-. ./so_utils.sh                     ## This is required to activate the macros so_success, so_error, and so_debug
+. ../utils/parte-1/so_2023_trab1_validator_v1/so_utils.sh                     ## This is required to activate the macros so_success, so_error, and so_debug
 
 ###############################################################################
 ## ISCTE-IUL: Trabalho prático de Sistemas Operativos 2023/2024, Enunciado Versão 3+
 ##
-## Aluno: Nº:       Nome:
+## Aluno: Nº: 122088       Nome: Erick Cordeiro Ozaki
 ## Nome do Módulo: S1. Script: regista_passageiro.sh
 ## Descrição/Explicação do Módulo:
 ##
@@ -17,8 +17,31 @@
 
 ## S1.1. Valida os argumentos passados e os seus formatos:
 ## S1.1.1. Valida os argumentos passados, avaliando se são em número suficiente (mínimo 3, máximo 4). Em caso de erro, dá so_error S1.1.1 e termina. Caso contrário, dá so_success S1.1.1.
+validateNumberOfArgs() {
+  if [[ $# < 3 || $# > 4 ]]; then
+    so_error "S1.1.1"
+    exit 1
+  fi
+
+  so_success "S1.1.1"
+  exit 0
+}
 
 ## S1.1.2. Valida se o argumento <Nome> corresponde ao nome de um utilizador do servidor Tigre. Se não corresponder ao nome de nenhum utilizador do Tigre, dá so_error S1.1.2 e termina. Senão, dá so_success S1.1.2.
+validateNameIsTigreUser() {
+  if ! [[ $# -eq 1 ]]; then
+    so_error "S1.1.2"
+    exit 1
+  fi
+
+  if [[ $(cat /etc/passwd | grep -c $1) -eq 1 ]]; then
+    so_success "S1.1.2"
+    exit 0
+  else
+    so_error "S1.1.2"
+    exit 1
+  fi
+}
 
 ## S1.1.3. Valida se o argumento <Saldo a adicionar> tem formato “number” (inteiro positivo ou 0). Se não tiver, dá so_error S1.1.3 e termina. Caso contrário, dá so_success S1.1.3.
 
