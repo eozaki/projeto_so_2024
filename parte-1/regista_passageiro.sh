@@ -32,29 +32,26 @@ TIGRE_USERS_FILE=/etc/passwd
 
 ## S1.1. Valida os argumentos passados e os seus formatos:
 ## S1.1.1. Valida os argumentos passados, avaliando se são em número suficiente (mínimo 3, máximo 4). Em caso de erro, dá so_error S1.1.1 e termina. Caso contrário, dá so_success S1.1.1.
-validateNumberOfArgs() {
-  if [[ $1 < 3 || $1 > 4 ]]; then
-    so_error "S1.1.1"
-    exit 1
-  fi
-
+if [[ $# < 3 || $# > 4 ]]; then
+  so_error "S1.1.1"
+  exit 1
+else
   so_success "S1.1.1"
-}
+fi
 
 ## S1.1.2. Valida se o argumento <Nome> corresponde ao nome de um utilizador do servidor Tigre. Se não corresponder ao nome de nenhum utilizador do Tigre, dá so_error S1.1.2 e termina. Senão, dá so_success S1.1.2.
-validateNameIsTigreUser() {
-  if ! [[ $1 -eq 1 ]]; then
-    so_error "S1.1.2"
-    exit 1
-  fi
+userOnPasswdFile=$(grep "$1" $TIGRE_USERS_FILE -c)
+if ! [[ $userOnPasswdFile -lt 1 ]]; then
+  so_error "S1.1.2"
+  exit 1
+fi
 
-  if [[ $(cat /etc/passwd | grep -c $1) -eq 1 ]]; then
-    so_success "S1.1.2"
-  else
-    so_error "S1.1.2"
-    exit 1
-  fi
-}
+if [[ $(cat /etc/passwd | grep -c $1) -eq 1 ]]; then
+  so_success "S1.1.2"
+else
+  so_error "S1.1.2"
+  exit 1
+fi
 
 ## S1.1.3. Valida se o argumento <Saldo a adicionar> tem formato “number” (inteiro positivo ou 0). Se não tiver, dá so_error S1.1.3 e termina. Caso contrário, dá so_success S1.1.3.
 validateAmountIsNumberValue() {
@@ -118,10 +115,27 @@ checkVAT() {
 
 ## S1.2.5. Define o campo <ID_passageiro>, como sendo o UserId Linux associado ao utilizador de nome <Nome> no servidor Tigre. Em caso de haver algum erro na operação, dá so_error S1.2.5 e termina. Caso contrário, dá so_success S1.2.5 <ID_passageiro> (substituindo pelo campo definido).
 getTigreIdForUser() {
+  if ! [[ -f $TIGRE_USERS_FILE ]]; then
+    so_error "S1.2.5"
+  fi
+
   return $(grep $1 $TIGRE_USERS_FILE | cut -f3 -d ':')
 }
 
 ## S1.2.6. Define o campo <Email>, gerado a partir do <Nome> introduzido pelo utilizador, usando apenas o primeiro e o último nome (dica: https://moodle23.iscte-iul.pt/mod/forum/discuss.php?d=5344), convertendo-os para minúsculas apenas, colocando um ponto entre os dois nomes, e domínio iscteflight.pt. Assim sendo, um exemplo seria “david.gabriel@iscteflight.pt”. Se houver algum erro na operação (e.g., o utilizador “root” tem menos de 2 nomes), dá so_error S1.2.6 e termina. Caso contrário, dá so_success S1.2.6 <Email> (substituindo pelo campo gerado). Ao registar um novo passageiro no sistema, o número inicial de <Saldo> tem o valor 0 (zero).
+createEmailAddressForUser() {
+  fullName=($1)
+
+  if [[ ${#fullName[@]} -lt 2 ]]; then
+    so_error "S1.2.6"
+    exit 1
+  fi
+
+  email=${fullName[0]}.${fullName[${#fullName[@]} - 1]}@iscteflight.pt
+  email=$(echo "$email" | awk '{print tolower($0)}')
+
+  return 0
+}
 
 ## S1.2.7. Regista o utilizador numa nova linha no final do ficheiro passageiros.txt, seguindo a sintaxe:   <ID_passageiro>:<NIF>:<Nome>:<Email>:<Senha>:<Saldo>. Em caso de haver algum erro na operação (e.g., erro na escrita do ficheiro), dá so_error S1.2.7 e termina. Caso contrário, dá so_success S1.2.7 <linha> (substituindo pela linha completa escrita no ficheiro).
 
