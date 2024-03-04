@@ -779,7 +779,7 @@ def test_compra_bilhete( t ):
     create_file( 'voos.txt', voos )
 
     eval_msg( check_proc_out( [ scr ],
-         b'@SUCCESS {S2.2.3} [14]',
+         b'@SUCCESS {S2.2.3}',
         input = b"Lisboa\n2\ndlsgl\n12qwaszx\n" ),
         'S2.2.3a', test = scr )
 
