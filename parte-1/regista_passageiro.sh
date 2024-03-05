@@ -87,9 +87,7 @@ fi
 
 
 ## S1.2.3. Caso o passageiro <Nome> passado já exista no ficheiro passageiros.txt, dá so_success S1.2.3, e continua no passo S1.3.  Senão, dá so_error S1.2.3, e continua.
-if [[ $(grep "$1" $PASSENGERS_FILE -c) -gt 0 ]]; then
-  so_success "S1.2.3"
-else
+if ! [[ $(grep "$1" $PASSENGERS_FILE -c) -gt 0 ]]; then
   so_error "S1.2.3"
 
   ## S1.2.4. Como o passageiro <Nome> não existe no ficheiro, terá de o registar. Para isso, valida se <NIF> (campo opcional) foi mesmo passado. Se não foi, dá so_error S1.2.4 e termina. Senão, dá so_success S1.2.4.
@@ -124,12 +122,24 @@ else
   if ! [[ $(echo "$passengerId:$4:$1:$email:$2:$3" >> $PASSENGERS_FILE) ]]; then
     so_success "S1.2.7"
   fi
+else
+  so_success "S1.2.3"
+
+  ## S1.3. Adiciona créditos na conta de um passageiro que existe no ficheiro passageiros.txt:
+  ## S1.3.1. Tendo já encontrado um “match” passageiro com o Nome <Nome> no ficheiro, valida se o campo <Senha> passado corresponde à senha registada no ficheiro. Se não corresponder, dá so_error S1.3.1 e termina. Caso contrário, dá so_success S1.3.1.
+  recoveredPasswd=$(grep "$1" $TIGRE_USERS_FILE | cut -f5 -d ':' "$PASSENGERS_FILE")
+  if [[ $recoveredPasswd == $2 ]]; then
+    so_success "S1.3.1"
+  else
+    so_error "S1.3.1"
+  fi
+
+  ## S1.3.2. Mesmo que tenha sido passado um campo <NIF> (opcional), ignora-o. Adiciona o valor passado do campo <Saldo a adicionar> ao valor do <Saldo> registado no ficheiro passageiros.txt para o passageiro em questão, atualizando esse valor no ficheiro passageiros.txt. Se houver algum erro na operação (e.g., erro na escrita do ficheiro), dá so_error S1.3.2 e termina. Caso tudo tenha corrido bem, dá o resultado so_success S1.3.2 <Saldo> (substituindo pelo valor saldo atualizado no ficheiro passageiros.txt).
+  amountToAdd=$3
+
+  value=$(($(grep "$1" $PASSENGERS_FILE | cut -f6 -d ':')+$3))
+  echo $(cat "$PASSENGERS_FILE" | sed -E "s/($fullName\:.*\:$2\:)[0-9]+/\1$value\r/") > "$PASSENGERS_FILE"
+  so_success 'S1.3.2' $value
 fi
-
-## S1.3. Adiciona créditos na conta de um passageiro que existe no ficheiro passageiros.txt:
-## S1.3.1. Tendo já encontrado um “match” passageiro com o Nome <Nome> no ficheiro, valida se o campo <Senha> passado corresponde à senha registada no ficheiro. Se não corresponder, dá so_error S1.3.1 e termina. Caso contrário, dá so_success S1.3.1.
-
-## S1.3.2. Mesmo que tenha sido passado um campo <NIF> (opcional), ignora-o. Adiciona o valor passado do campo <Saldo a adicionar> ao valor do <Saldo> registado no ficheiro passageiros.txt para o passageiro em questão, atualizando esse valor no ficheiro passageiros.txt. Se houver algum erro na operação (e.g., erro na escrita do ficheiro), dá so_error S1.3.2 e termina. Caso tudo tenha corrido bem, dá o resultado so_success S1.3.2 <Saldo> (substituindo pelo valor saldo atualizado no ficheiro passageiros.txt).
-
 ## S1.4. Lista todos os passageiros registados, mas ordenados por saldo:
 ## S1.4.1. O script deve criar um ficheiro chamado passageiros-saldos-ordenados.txt igual ao que está no ficheiro passageiros.txt, com a mesma formatação, mas com os registos ordenados por ordem decrescente do campo <Saldo> dos passageiros. Se houver algum erro (e.g., erro na leitura ou escrita do ficheiro), dá so_error S1.4.1, e termina. Caso contrário, dá so_success S1.4.1.
