@@ -27,6 +27,7 @@
 NUMBER_REGEX='^[0-9]+$'
 VAT_LENGTH_REGEX='^[0-9]{9}$'
 PASSENGERS_FILE=passageiros.txt
+SORTED_PASSENGERS_FILE=passageiros-saldos-ordenados.txt
 TIGRE_USERS_FILE=/etc/passwd
 
 ## S1.1. Valida os argumentos passados e os seus formatos:
@@ -137,9 +138,16 @@ else
   ## S1.3.2. Mesmo que tenha sido passado um campo <NIF> (opcional), ignora-o. Adiciona o valor passado do campo <Saldo a adicionar> ao valor do <Saldo> registado no ficheiro passageiros.txt para o passageiro em questão, atualizando esse valor no ficheiro passageiros.txt. Se houver algum erro na operação (e.g., erro na escrita do ficheiro), dá so_error S1.3.2 e termina. Caso tudo tenha corrido bem, dá o resultado so_success S1.3.2 <Saldo> (substituindo pelo valor saldo atualizado no ficheiro passageiros.txt).
   amountToAdd=$3
 
-  value=$(($(grep "$1" $PASSENGERS_FILE | cut -f6 -d ':')+$3))
-  echo $(cat "$PASSENGERS_FILE" | sed -E "s/($fullName\:.*\:$2\:)[0-9]+/\1$value\r/") > "$PASSENGERS_FILE"
-  so_success 'S1.3.2' $value
+  while IFS=":" read -r username nif nome email senha saldo
+  do
+    if [[ $nome == $1 && $senha == $2 ]]; then
+      valor=$((amountToAdd + saldo))
+      sed -i "s/$saldo/$valor/" "$PASSENGERS_FILE"
+    fi
+  done < "$PASSENGERS_FILE"
+  so_success 'S1.3.2' $valor
 fi
 ## S1.4. Lista todos os passageiros registados, mas ordenados por saldo:
 ## S1.4.1. O script deve criar um ficheiro chamado passageiros-saldos-ordenados.txt igual ao que está no ficheiro passageiros.txt, com a mesma formatação, mas com os registos ordenados por ordem decrescente do campo <Saldo> dos passageiros. Se houver algum erro (e.g., erro na leitura ou escrita do ficheiro), dá so_error S1.4.1, e termina. Caso contrário, dá so_success S1.4.1.
+banana=$(cat "$PASSENGERS_FILE" | sort -t ":" -k 6 -g -r > $SORTED_PASSENGERS_FILE)
+echo $banana
