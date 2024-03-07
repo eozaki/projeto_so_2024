@@ -150,4 +150,9 @@ fi
 ## S1.4. Lista todos os passageiros registados, mas ordenados por saldo:
 ## S1.4.1. O script deve criar um ficheiro chamado passageiros-saldos-ordenados.txt igual ao que está no ficheiro passageiros.txt, com a mesma formatação, mas com os registos ordenados por ordem decrescente do campo <Saldo> dos passageiros. Se houver algum erro (e.g., erro na leitura ou escrita do ficheiro), dá so_error S1.4.1, e termina. Caso contrário, dá so_success S1.4.1.
 banana=$(cat "$PASSENGERS_FILE" | sort -t ":" -k 6 -g -r > $SORTED_PASSENGERS_FILE)
-echo $banana
+
+if [[ $banana -eq 0 ]]; then
+  so_success 'S1.4.1'
+else
+  so_error 'S1.4.1'
+fi

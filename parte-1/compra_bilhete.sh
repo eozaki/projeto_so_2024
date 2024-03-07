@@ -6,7 +6,7 @@
 ###############################################################################
 ## ISCTE-IUL: Trabalho prático de Sistemas Operativos 2023/2024, Enunciado Versão 3+
 ##
-## Aluno: Nº:       Nome:
+## Aluno: Nº: 122088       Nome: Erick Cordeiro Ozaki
 ## Nome do Módulo: S2. Script: compra_bilhete.sh
 ## Descrição/Explicação do Módulo:
 ##
@@ -15,12 +15,46 @@
 
 ## Este script não recebe nenhum argumento, e permite que o passageiro compre um bilhete para um voo da lista de voos disponíveis. Para realizar a compra, o passageiro deve fazer login para confirmar sua identidade e saldo disponível. Os voos disponíveis estão listados no ficheiro voos.txt. Se não quiser produzir o seu próprio ficheiro, pode utilizar o ficheiro exemplo fornecido, dando o comando: cp voos-exemplo.txt voos.txt. O mesmo procedimento pode ser realizado também com o ficheiro passageiros.txt.
 
+FLIGHT_FILE=voos.txt
+PASSENGERS_FILE=passageiros.txt
 ## S2.1. Validações e Pedido de informações interativo:
 ## S2.1.1. O script valida se os ficheiros voos.txt e passageiros.txt existem. Se algum não existir, dá so_error e termina. Caso contrário, dá so_success.
+if [[ -f "$FLIGHT_FILE" && -f "$PASSENGERS_FILE" ]]; then
+  so_success "S2.1.1"
+else
+  so_error "S2.1.1"
+  exit 1
+fi
 
 ## S2.1.2. Na plataforma é possível consultar os voos pela sua <Origem> ou <Destino>. Pedindo "Insira a cidade de origem ou destino do voo: _". O utilizador insere a cidade Origem ou Destino do voo (o interesse é que pesquise nos 2 campos). Caso o utilizador tenha introduzido uma cidade que não exista no ficheiro voos.txt, ou se não existirem voos com lugares disponíveis com origem ou destino nessa cidade, dá so_error e termina. Caso contrário, dá so_success <Cidade>.
+read -p 'Insira a cidade de origem ou destino do voo: ' cityOfInterest
+
+flights=""
+count=0
+while IFS=":" read -r codVoo origem destino data hora preco lotacao disponiveis
+  do
+  if [[ "$origem" == "$cityOfInterest" || "$destino" == "$cityOfInterest" ]] && [ "$disponiveis" != "0" ]; then
+    ((count++))
+    flights=$flights"$count.$origem para $destino, $data, Partida:$hora, Preço: $preco, Disponíveis:$disponiveis lugares\n"
+  fi
+done < "$FLIGHT_FILE"
+
+if [[ -n $flights ]]; then
+  so_success 'S2.1.2' $cityOfInterest
+else
+  so_error 'S2.1.2'
+  exit 1
+fi
 
 ## S2.1.3. O programa pede ao utilizador para inserir uma opção de voo, listando os voos que existem de acordo com a origem/destino inserida anteriormente, da seguinte forma: "Lista de voos, numerada, ou 0 para sair, Insira o voo que pretende reservar: _" O utilizador insere a opção do voo (neste exemplo, números de 1 a 3 ou 0). Se o utilizador escolheu um número de entre as opções de voos apresentadas (neste caso, entre 1 e 3), dá so_success <opção>. Caso contrário, dá so_error e termina.
+# 1.Lisboa para Dubai, 2024-05-23, Partida:08h00, Preço: 320, Disponíveis:35 lugares
+# if [[ flightOptions=$(grep "$cityOfInterest" "$FLIGHT_FILE" | awk -F ":" 'BEGIN{i=0} {print ++i"."$2" para "$3", "$4", Partida:"$5", Preço: "$6", Disponíveis:"$8" lugares"}') ]]; then
+#   echo $flightOptions
+#   so_success 'S2.1.3'
+# else
+#   so_error 'S2.1.3'
+#   exit 1
+# fi
 
 ## S2.1.4. O programa pede ao utilizador o seu <ID_passageiro>: "Insira o ID do seu utilizador: _" O utilizador insere o respetivo ID de passageiro (dica: UserId Linux). Se esse ID não estiver registado no ficheiro passageiros.txt, dá so_error e termina. Caso contrário, reporta so_success <ID_passageiro>.
 
