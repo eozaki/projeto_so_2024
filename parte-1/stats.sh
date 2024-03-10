@@ -9,7 +9,7 @@
 ## Aluno: Nº: a122088      Nome: Erick Cordeiro Ozaki
 ## Nome do Módulo: S4. Script: stats.sh
 ## Descrição/Explicação do Módulo:
-##
+## Valida os parametros das estatísticas solicitadas e as exibe, segundo os parâmetros solicitados, no ficheiro stats.txt
 ##
 ###############################################################################
 

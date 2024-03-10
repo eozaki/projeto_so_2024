@@ -9,8 +9,10 @@
 ## Aluno: Nº: 122088       Nome: Erick Cordeiro Ozaki
 ## Nome do Módulo: S2. Script: compra_bilhete.sh
 ## Descrição/Explicação do Módulo:
-##
-##
+## Verifica disponibilidade de assentos em voos que se originem ou destinem à cidade apontada pelo usuário como cidade de interesse
+## Lista voos com disponibilidade e recolhe a opção do utilizador por um deles
+## Garante e abate do saldo do utilizado o preço da passagem para o voo escolhido
+## Atualiza o ficheiro de registo de passageiros e o registo de disponibilidade do voo
 ###############################################################################
 
 ## Este script não recebe nenhum argumento, e permite que o passageiro compre um bilhete para um voo da lista de voos disponíveis. Para realizar a compra, o passageiro deve fazer login para confirmar sua identidade e saldo disponível. Os voos disponíveis estão listados no ficheiro voos.txt. Se não quiser produzir o seu próprio ficheiro, pode utilizar o ficheiro exemplo fornecido, dando o comando: cp voos-exemplo.txt voos.txt. O mesmo procedimento pode ser realizado também com o ficheiro passageiros.txt.

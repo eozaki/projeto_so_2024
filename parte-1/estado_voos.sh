@@ -9,7 +9,7 @@
 ## Aluno: Nº: 122088       Nome: Erick Cordeiro Ozaki
 ## Nome do Módulo: S3. Script: estado_voos.sh
 ## Descrição/Explicação do Módulo:
-##
+## Verifica e publica em formato de página web a disponibilidade de assentos em voos listados
 ##
 ###############################################################################
 

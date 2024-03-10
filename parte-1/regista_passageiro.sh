@@ -8,18 +8,13 @@
 ## Aluno: Nº: 122088       Nome: Erick Cordeiro Ozaki
 ## Nome do Módulo: S1. Script: regista_passageiro.sh
 ## Descrição/Explicação do Módulo:
-##
-##
+## Valida a quantidade e o formato dos argumentos fornecidos a fim de registar e/ou atualizar um passageiro
+## Averigua a existencia do passageiro como utilizador no Tigre
+## Cria e/ou atualiza a info do passageiro no ficheiro que guarda estes registos
+## Atualiza o saldo do passageiro caso existência do usuário e corretude da senha se verifiquem
 ###############################################################################
 
 ## Este script é invocado quando um novo passageiro se regista na plataforma IscteFlight. Este script recebe todos os dados por argumento, na chamada da linha de comandos. Os passageiros são registados no ficheiro passageiros.txt. Deve receber as informações do passageiro como argumentos pela seguinte ordem: <Nome:string> <Senha:string>  <Saldo a adicionar:number> [<NIF:number>]
-# so_error() {
-#   echo "AAAAAAAAAAAAAAAAAAAAAA$1"
-# }
-# 
-# so_success() {
-#   echo "daora!$1"
-# }
 
 #####################
 # CONSTANTS

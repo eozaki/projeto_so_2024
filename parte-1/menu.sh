@@ -9,8 +9,9 @@
 ## Aluno: Nº: 122088       Nome: Erick Ozaki
 ## Nome do Módulo: S5. Script: menu.sh
 ## Descrição/Explicação do Módulo:
-##
-##
+## Apresenta o menu de interação com os demais scripts de maneira iterativa;
+## Recebe a seleção do utilizador através do promp, recolhe os parâmetros necessários (caso se aplique)
+## E invoca o script escolhido com os argumentos fornecidos
 ###############################################################################
 
 ## Este script invoca os scripts restantes, não recebendo argumentos. Atenção: Não é suposto que volte a fazer nenhuma das funcionalidades dos scripts anteriores. O propósito aqui é simplesmente termos uma forma centralizada de invocar os restantes scripts.
@@ -81,7 +82,6 @@ do
 
     so_success 'S5.2.2.5'
   fi
-
 done
 
 exit 0
