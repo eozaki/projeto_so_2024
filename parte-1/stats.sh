@@ -21,6 +21,11 @@ TIGRE_USERS_FILE=/etc/passwd
 
 ## S4.1. Validações:
 ## S4.1.1. Valida os argumentos recebidos e, conforme os mesmos, o número e tipo de argumentos recebidos. Se não respeitarem a especificação, dá so_error e termina. Caso contrário, dá so_success.
+if [[ ! -f "$REPORT_FILE" ]]; then
+  so_error 'S4.1.1'
+  exit 1
+fi
+
 if [[ $# -eq 0 ]]; then
   so_error 'S4.1.1'
   exit 1
@@ -38,10 +43,6 @@ so_success 'S4.1.1'
 
 ## S4.2. Invocação do script:
 ## S4.2.1. Se receber o argumento passageiros, (i.e., ./stats.sh passageiros) cria um ficheiro stats.txt onde lista o nome de todos os utilizadores que fizeram reservas, por ordem decrescente de número de reservas efetuadas, e mostrando o seu valor total de compras. Em caso de erro (por exemplo, se não conseguir ler algum ficheiro necessário), dá so_error e termina. Caso contrário, dá so_success e cria o ficheiro. Em caso de empate no número de reservas, lista o primeiro do ficheiro. Preste atenção ao tratamento do singular e plural quando se escreve “reserva” no ficheiro).
-
-if [[ -f "$STATS_FILE" ]]; then
-  rm -f "$STATS_FILE"
-fi
 
 if [[ "$1" == "passageiros" ]]; then
   users=$(cat "$REPORT_FILE" | awk -F ':' '{ print $6 }' | sort | uniq)
@@ -83,3 +84,37 @@ if [[ "$1" == "passageiros" ]]; then
 fi
 
 ## S4.2.2. Se receber o argumento top <nr:number>, (e.g., ./stats.sh top 4), cria um ficheiro stats.txt onde lista os <nr> (no exemplo, os 4) voos mais rentáveis (que tiveram melhores receitas de vendas), por ordem decrescente. Em caso de erro (por exemplo, se não conseguir ler algum ficheiro necessário), dá so_error e termina. Caso contrário, dá so_success e cria o ficheiro. Em caso de empate, lista o primeiro do ficheiro.
+if [[ "$1" == 'top' ]]; then
+  flights=$(cat "$REPORT_FILE" | awk -F ':' '{ print $2 }' | sort | uniq)
+  if [[ -z $flights ]]; then
+    so_error 'S4.2.1'
+    exit 1
+  fi
+
+  gastos=""
+  for voo in $flights; do
+    soma=0
+    while IFS=':' read -r idRes codVoo origem destino preco userId data hora
+    do
+      if [[ $voo == $codVoo ]]; then
+        soma=$(($soma + $preco))
+      fi
+    done < "$REPORT_FILE"
+
+    gastos=$gastos"$voo:$soma\n"
+  done
+
+  gastos=$(echo -e $gastos | sort -t ':' -k2 -g -r | head -n "$2")
+
+  output=""
+  while IFS=':' read -r voo renda
+  do
+    output=$output"$voo: $renda€\n"
+  done <<< "$gastos"
+
+  if [[ $(echo -e $output > "$STATS_FILE") -eq 0 ]]; then
+    so_success 'S4.2.2'
+  else
+    so_error 'S4.2.2'
+  fi
+fi
