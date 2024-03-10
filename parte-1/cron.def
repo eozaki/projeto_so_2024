@@ -1,0 +1,18 @@
+###############################################################################
+## ISCTE-IUL: Trabalho prático de Sistemas Operativos 2023/2024, Enunciado Versão 3+
+##
+## Aluno: Nº:       Nome:
+## Nome do Módulo: S3.3.1. cron.def
+## Descrição/Explicação do Módulo:
+## O cronjob configurado executa sempre no minuto 0 de cada hora o script de nome 'estado_voos.sh'
+## localizado na diretoria /home/a122088/trabalho-23-24/parte-1/
+##
+## Explicação de quais os comandos a usar para configurar o seu sistema Linux
+## usando este ficheiro:
+## Para a devida configuração deste cronjob, deve ser executado o seguinte comando
+## $ crontab <nome deste ficheiro>
+## Neste caso, como o ficheiro se chama 'cron.def'
+## $ crontab cron.def
+###############################################################################
+
+0 * * * * ~/trabalho-23-24/parte-1/estado_voos.sh
