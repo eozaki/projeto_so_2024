@@ -6,7 +6,7 @@
 ###############################################################################
 ## ISCTE-IUL: Trabalho prático de Sistemas Operativos 2023/2024, Enunciado Versão 3+
 ##
-## Aluno: Nº:       Nome:
+## Aluno: Nº: 122088       Nome: Erick Ozaki
 ## Nome do Módulo: S5. Script: menu.sh
 ## Descrição/Explicação do Módulo:
 ##
@@ -17,7 +17,16 @@
 
 ## S5.1. Apresentação:
 ## S5.1.1. O script apresenta (pode usar echo, cat ou outro, sem “limpar” o ecrã) um menu com as opções indicadas no enunciado (1 a 5, ou 0 para sair).
+menu="MENU:\n"
+menu=$menu"1: Regista/Atualiza saldo do passageiro\n"
+menu=$menu"2: Reserva/Compra de bilhetes\n"
+menu=$menu"3: Atualiza Estado dos voos\n"
+menu=$menu"4: Estatísticas - Passageiros\n"
+menu=$menu"5: Estatísticas - Top Voos + Rentáveis\n"
+menu=$menu"0: Sair\n\n"
 
+echo -e "$menu"
+read -p "Opção: " selection
 ## S5.2. Validações:
 ## S5.2.1. Aceita como input do utilizador um número. Valida que a opção introduzida corresponde a uma opção válida. Se não for, dá so_error <opção> (com a opção errada escolhida), e volta ao passo S5.1 (ou seja, mostra novamente o menu). Caso contrário, dá so_success <opção>.
 
