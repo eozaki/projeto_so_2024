@@ -16,6 +16,8 @@
 ## Este script obtém informações sobre o sistema, afixando resultados diferentes no STDOUT consoante os argumentos passados na sua invocação. A sintaxe resumida é: ./stats.sh <passageiros>|<top <nr>>
 
 REPORT_FILE='relatorio_reservas.txt'
+STATS_FILE='stats.txt'
+TIGRE_USERS_FILE=/etc/passwd
 
 ## S4.1. Validações:
 ## S4.1.1. Valida os argumentos recebidos e, conforme os mesmos, o número e tipo de argumentos recebidos. Se não respeitarem a especificação, dá so_error e termina. Caso contrário, dá so_success.
@@ -37,23 +39,45 @@ so_success 'S4.1.1'
 ## S4.2. Invocação do script:
 ## S4.2.1. Se receber o argumento passageiros, (i.e., ./stats.sh passageiros) cria um ficheiro stats.txt onde lista o nome de todos os utilizadores que fizeram reservas, por ordem decrescente de número de reservas efetuadas, e mostrando o seu valor total de compras. Em caso de erro (por exemplo, se não conseguir ler algum ficheiro necessário), dá so_error e termina. Caso contrário, dá so_success e cria o ficheiro. Em caso de empate no número de reservas, lista o primeiro do ficheiro. Preste atenção ao tratamento do singular e plural quando se escreve “reserva” no ficheiro).
 
+if [[ -f "$STATS_FILE" ]]; then
+  rm -f "$STATS_FILE"
+fi
+
 if [[ "$1" == "passageiros" ]]; then
-  TEMP_STATS='stats.tmp'
-  if [[ -f "$TEMP_STATS" ]]; then
-    rm -f "$TEMP_STATS"
+  users=$(cat "$REPORT_FILE" | awk -F ':' '{ print $6 }' | sort | uniq)
+  if [[ -z $users ]]; then
+    so_error 'S4.2.1'
+    exit 1
   fi
 
-  users=$(cat "$REPORT_FILE" | awk -F ':' '{print $6}' | uniq)
+  gastos=""
+  for user in $users; do
+    soma=0
+    compras=0
+    while IFS=':' read -r idRes codVoo origem destino preco userId data hora
+    do
+      if [[ $userId == $user ]]; then
+        soma=$(($soma + $preco))
+        compras=$(($compras + 1))
+      fi
+    done < "$REPORT_FILE"
 
-  tmp=""
-  while IFS=":" read -r idR codigo origem destino preco user timestamp
-  soma=0
+    passengerName=$(grep "$user" $TIGRE_USERS_FILE | cut -f5 -d ':' | cut -f1 -d ',')
+    gastos=$gastos"$passengerName:$compras:$soma\n"
+  done
+
+  gastos=$(echo -e $gastos | sort -t ':' -k 3 -g -r)
+
+  output=""
+  while IFS=':' read -r nome compras soma
   do
-    if [[ $user == $usuario ]]; then
-    fi
-  done < $users
+    if [[ "$compras" -eq 1 ]]; then reserva="reserva"; else reserva="reservas"; fi
+    output=$output"$nome: $compras $reserva; $soma€\n"
+  done <<< "$gastos"
 
-  if [[ ! $(echo -e "$tmp" > "$TEMP_STATS") -eq 0 ]]; then
+  if [[ $(echo -e $output > "$STATS_FILE") -eq 0 ]]; then
+    so_success 'S4.2.1'
+  else
     so_error 'S4.2.1'
   fi
 fi
