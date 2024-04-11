@@ -1,7 +1,7 @@
 /******************************************************************************
  ** ISCTE-IUL: Trabalho prático 2 de Sistemas Operativos 2023/2024, Enunciado Versão 3+
  **
- ** Aluno: Nº:       Nome: 
+ ** Aluno: Nº: 122088       Nome: Erick Cordeiro Ozaki
  ** Nome do Módulo: servidor.c
  ** Descrição/Explicação do Módulo:
  **
