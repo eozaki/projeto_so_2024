@@ -72,6 +72,12 @@ void checkExistsDB_S1 (char *nameDB) {
     so_debug("< [@param nameDB:%s]", nameDB);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    if(access(nameDB, F_OK) == 0 && access(nameDB, W_OK) && access(nameDB, R_OK))
+        so_success("S1", "");
+    else {
+        so_error("S1", "");
+        exit(1);
+    }
 
     so_debug(">");
 }
@@ -84,6 +90,18 @@ void createFifo_S2 (char *nameFifo) {
     so_debug("< [@param nameFifo:%s]", nameFifo);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    if(access(nameFifo, F_OK) == 0)
+        remove(nameFifo);
+
+    FILE *file = fopen(nameFifo, "w");
+
+    if(file == NULL) {
+        so_error("S2", "");
+        exit(1);
+    }
+
+    fclose(file);
+    so_success("S2", "");
 
     so_debug(">");
 }
