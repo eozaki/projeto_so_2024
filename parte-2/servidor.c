@@ -208,6 +208,12 @@ void deleteFifoAndExit_S7 () {
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
 
+    if(unlink("server.fifo") == 0) {
+      so_success("S7", "Servidor: End Shutdown");
+    } else {
+      so_error("S7", "");
+    }
+
     so_debug(">");
     exit(0);
 }
