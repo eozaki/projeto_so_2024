@@ -261,6 +261,33 @@ int searchClientDB_SD10 (CheckIn request, char *nameDB, CheckIn *itemDB) {
                                                                     request.senha, nameDB, itemDB);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    int bd_passageiros = open("bd_passageiros.dat", O_RDONLY);
+    while(1) {
+      int db_read = read(bd_passageiros, itemDB, sizeof(*itemDB));
+
+      if(db_read < 0) {
+        so_error("SD10.1", "");
+        kill(request.pidCliente, SIGHUP);
+        exit(1);
+      } else if(db_read == 0) {
+        so_error("SD10.1", "Cliente %d: não encontrado", request.nif);
+        kill(request.pidCliente, SIGHUP);
+        exit(1);
+      }
+
+      if(itemDB->nif == request.nif) {
+        if(strcmp(itemDB->senha, request.senha) == 0) {
+          so_success("SD10.3", "%d", indexClient);
+          close("bd_passageiros.dat");
+          break;
+        } else {
+          so_error("SD10.3", "Cliente %d: Senha errada");
+          kill(request.pidCliente, SIGHUP);
+          exit(1);
+        }
+      }
+      indexClient++;
+    }
 
     so_debug("> [@return:%d, nome:%s, nrVoo:%s]", indexClient, itemDB->nome, itemDB->nrVoo);
     return indexClient;
