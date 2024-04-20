@@ -170,9 +170,32 @@ int createServidorDedicado_S5 () {
  * @param sinalRecebido nº do Sinal Recebido (preenchido pelo SO)
  */
 void trataSinalSIGINT_S6 (int sinalRecebido) {
+    CheckIn request;
     so_debug("< [@param sinalRecebido:%d]", sinalRecebido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+
+    so_success("S6", "Servidor: Start Shutdown");
+    int bd_passageiros = open("bd_passageiros.dat", O_RDONLY);
+    if(bd_passageiros <= -1) {
+      so_error("S6.1", "");
+      deleteFifoAndExit_S7();
+    }
+    so_success("S6.1", "");
+
+    while(1) {
+      int db_read = read(bd_passageiros, &request, sizeof(request));
+      if(db_read < 0) {
+        so_error("S6.2", "");
+        deleteFifoAndExit_S7();
+      } else if(db_read == 0) {
+        so_success("S6.2", "");
+        deleteFifoAndExit_S7();
+      } else if(request.pidServidorDedicado > 0) {
+        kill(request.pidServidorDedicado, SIGUSR2);
+        so_success("S6.3", "Servidor: Shutdown SD %d", request.pidServidorDedicado);
+      }
+    }
 
     so_debug(">");
 }
