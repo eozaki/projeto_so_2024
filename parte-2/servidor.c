@@ -226,7 +226,9 @@ void trataSinalSIGCHLD_S8 (int sinalRecebido) {
     so_debug("< [@param sinalRecebido:%d]", sinalRecebido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    pid_t child = wait(NULL);
 
+    so_success("S8", "Servidor: Confirmo fim de SD %d", child);
     so_debug(">");
 }
 
