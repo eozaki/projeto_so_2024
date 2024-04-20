@@ -72,7 +72,7 @@ void checkExistsDB_S1 (char *nameDB) {
     so_debug("< [@param nameDB:%s]", nameDB);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
-    if(access(nameDB, F_OK) == 0 && access(nameDB, W_OK) && access(nameDB, R_OK))
+    if(access(nameDB, F_OK) == 0 && access(nameDB, W_OK) == 0 && access(nameDB, R_OK) == 0)
         so_success("S1", "");
     else {
         so_error("S1", "");
@@ -93,14 +93,11 @@ void createFifo_S2 (char *nameFifo) {
     if(access(nameFifo, F_OK) == 0)
         remove(nameFifo);
 
-    FILE *file = fopen(nameFifo, "w");
-
-    if(file == NULL) {
+    if(mkfifo(nameFifo, 0666) != 0) {
         so_error("S2", "");
         exit(1);
     }
 
-    fclose(file);
     so_success("S2", "");
 
     so_debug(">");
@@ -113,6 +110,8 @@ void triggerSignals_S3 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    signal(SIGINT, trataSinalSIGINT_S6);
+    signal(SIGCHLD, trataSinalSIGCHLD_S8);
 
     so_debug(">");
 }
@@ -128,8 +127,20 @@ CheckIn readRequest_S4 (char *nameFifo) {
     so_debug("< [@param nameFifo:%s]", nameFifo);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    int fifo = open(nameFifo, O_RDONLY);
+    read(fifo, &request, sizeof(request));
+
+    close(fifo);
+
+    if(request.nif <= 0 || request.pidCliente <= 0) {
+      so_error("S4", "");
+      deleteFifoAndExit_S7();
+    }
 
     so_debug("> [@return nif:%d, senha:%s, pidCliente:%d]", request.nif, request.senha, request.pidCliente);
+
+    so_success("S4", "%d %s %d", request.nif, request.senha, request.pidCliente);
+
     return request;
 }
 
@@ -143,7 +154,13 @@ int createServidorDedicado_S5 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    pid_filho = fork();
+    if(pid_filho < 0) {
+      so_error("S5", "");
+      deleteFifoAndExit_S7();
+    }
 
+    so_success("S5", "Servidor: Iniciei SD %d", pid_filho);
     so_debug("> [@return:%d]", pid_filho);
     return pid_filho;
 }
