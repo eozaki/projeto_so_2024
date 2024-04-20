@@ -239,6 +239,11 @@ void triggerSignals_SD9 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    if(signal(SIGINT, SIG_IGN) == SIG_ERR || signal(SIGUSR2, trataSinalSIGUSR2_SD14) == SIG_ERR) {
+      so_error("SD9", "");
+      exit(1);
+    } else
+      so_success("SD9", "");
 
     so_debug(">");
 }
