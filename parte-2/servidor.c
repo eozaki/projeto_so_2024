@@ -127,24 +127,23 @@ CheckIn readRequest_S4 (char *nameFifo) {
     so_debug("< [@param nameFifo:%s]", nameFifo);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
-    int fifo = open(nameFifo, O_RDONLY);
-    if(fifo == -1) {
-      so_error("S4", "");
-    }
-    so_success("S4", "");
+    FILE* fifo = fopen(nameFifo, "r");
+     if(!fifo) {
+       so_error("S4", "");
+       deleteFifoAndExit_S7();
+     }
 
-    read(fifo, &request, sizeof(request));
+    int read_data = fscanf(fifo, "%d %s %d", &request.nif, request.senha, &request.pidCliente);
+    fclose(fifo);
 
-    close(fifo);
-
-    if(request.nif <= 0 || request.pidCliente <= 0) {
-      so_error("S4", "");
+    if(request.nif <= 0 || request.pidCliente <= 0 || read_data != 3) {
+      so_error("S4.1", "");
       deleteFifoAndExit_S7();
     }
 
-    so_debug("> [@return nif:%d, senha:%s, pidCliente:%d]", request.nif, request.senha, request.pidCliente);
+    so_success("S4.1", "%d %s %d", request.nif, request.senha, request.pidCliente);
 
-    so_success("S4", "%d %s %d", request.nif, request.senha, request.pidCliente);
+    so_debug("> [@return nif:%d, senha:%s, pidCliente:%d]", request.nif, request.senha, request.pidCliente);
 
     return request;
 }
@@ -271,7 +270,6 @@ int searchClientDB_SD10 (CheckIn request, char *nameDB, CheckIn *itemDB) {
       so_error("SD10", "");
       exit(1);
     }
-    so_success("SD10", "");
 
     while(1) {
       int db_read = read(bd_passageiros, itemDB, sizeof(*itemDB));
@@ -318,32 +316,31 @@ void checkinClientDB_SD11 (CheckIn *request, char *nameDB, int indexClient, Chec
                                     request, nameDB, indexClient, itemDB.pidServidorDedicado);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
-    int bd_passageiros = open("bd_passageiros.dat", O_WRONLY);
     strcpy(request->nome, itemDB.nome);
     strcpy(request->nrVoo, itemDB.nrVoo);
+
     request->pidServidorDedicado = getpid();
     so_success("SD11.1", "%s %s %d", itemDB.nome, itemDB.nrVoo, request->pidServidorDedicado);
     so_debug("> [nome:%s, nrVoo:%s, pidServidorDedicado:%d]", request->nome,
                                                 request->nrVoo, request->pidServidorDedicado);
-    close(bd_passageiros);
 
-    FILE* bd_passageiros1 = fopen("bd_passageiros.dat", "r+");
-    if(bd_passageiros1 == NULL) {
+    FILE* db_conn = fopen("bd_passageiros.dat", "r+b");
+    if(db_conn == NULL) {
       so_error("SD11.2", "");
       kill(request->pidCliente, SIGHUP);
       exit(1);
     }
     so_success("SD11.2", "");
 
-    if(fseek(bd_passageiros1, indexClient * sizeof(itemDB), SEEK_SET) != 0) {
+    if(fseek(db_conn, indexClient, SEEK_SET) != 0) {
       so_error("SD11.3", "");
       kill(request->pidCliente, SIGHUP);
       exit(1);
     }
     so_success("SD11.3", "");
 
-    int write_result = fputs(request, bd_passageiros1);
-    fclose(bd_passageiros1);
+    int write_result = fwrite(&request, sizeof(request), 1, db_conn);
+    fclose(db_conn);
 
     if(write_result <= 0) {
       so_error("SD11.4", "");
@@ -384,7 +381,7 @@ void closeSessionDB_SD13 (CheckIn clientRequest, char *nameDB, int indexClient) 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
     clientRequest.pidCliente = -1;
     clientRequest.pidServidorDedicado = -1;
-    FILE* db_conn = fopen("bd_passageiros.dat", "r+");
+    FILE* db_conn = fopen("bd_passageiros.dat", "r+b");
     if(db_conn == NULL) {
       so_error("SD13.1", "");
       exit(1);
@@ -397,11 +394,12 @@ void closeSessionDB_SD13 (CheckIn clientRequest, char *nameDB, int indexClient) 
     }
     so_success("SD13.2", "");
     
-    // fputs(clientRequest, db_conn);
+    fwrite(&clientRequest.nif, sizeof(clientRequest.nif), 1, db_conn);
 
     fclose(db_conn);
     so_debug("> [pidCliente:%d, pidServidorDedicado:%d]", clientRequest.pidCliente, 
                                                           clientRequest.pidServidorDedicado);
+    exit(1);
 }
 
 /**
