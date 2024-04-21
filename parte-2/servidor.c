@@ -330,14 +330,12 @@ void checkinClientDB_SD11 (CheckIn *request, char *nameDB, int indexClient, Chec
       kill(request->pidCliente, SIGHUP);
       exit(1);
     }
-    so_success("SD11.2", "");
 
     if(fseek(db_conn, indexClient, SEEK_SET) != 0) {
       so_error("SD11.3", "");
       kill(request->pidCliente, SIGHUP);
       exit(1);
     }
-    so_success("SD11.3", "");
 
     int write_result = fwrite(&request, sizeof(request), 1, db_conn);
     fclose(db_conn);
