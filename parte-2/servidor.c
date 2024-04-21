@@ -287,7 +287,7 @@ int searchClientDB_SD10 (CheckIn request, char *nameDB, CheckIn *itemDB) {
       if(itemDB->nif == request.nif) {
         if(strcmp(itemDB->senha, request.senha) == 0) {
           so_success("SD10.3", "%d", indexClient);
-          close("bd_passageiros.dat");
+          close(bd_passageiros);
           break;
         } else {
           so_error("SD10.3", "Cliente %d: Senha errada", indexClient);
