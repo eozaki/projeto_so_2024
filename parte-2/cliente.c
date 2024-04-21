@@ -156,6 +156,7 @@ void waitForEvents_C7 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    pause();
 
     so_debug(">");
 }
@@ -168,8 +169,10 @@ void trataSinalSIGUSR1_C8 (int sinalRecebido) {
     so_debug("< [@param sinalRecebido:%d]", sinalRecebido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    so_success("C8", "Check-in concluído com sucesso");
 
     so_debug(">");
+    exit(0);
 }
 
 /**
@@ -180,8 +183,10 @@ void trataSinalSIGHUP_C9 (int sinalRecebido) {
     so_debug("< [@param sinalRecebido:%d]", sinalRecebido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    so_success("C9", "Check-in concluído com sucesso");
 
     so_debug(">");
+    exit(1);
 }
 
 /**
@@ -192,8 +197,9 @@ void trataSinalSIGINT_C10 (int sinalRecebido) {
     so_debug("< [@param sinalRecebido:%d]", sinalRecebido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
-
+    so_success("C10", "Cliente: Shutdown");
     so_debug(">");
+    exit(0);
 }
 
 /**
@@ -204,6 +210,8 @@ void trataSinalSIGALRM_C11 (int sinalRecebido) {
     so_debug("< [@param sinalRecebido:%d]", sinalRecebido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    so_error("C11", "Cliente: Timeout");
 
     so_debug(">");
+    exit(1);
 }
