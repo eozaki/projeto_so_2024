@@ -128,6 +128,11 @@ CheckIn readRequest_S4 (char *nameFifo) {
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
     int fifo = open(nameFifo, O_RDONLY);
+    if(fifo == -1) {
+      so_error("S4", "");
+    }
+    so_success("S4", "");
+
     read(fifo, &request, sizeof(request));
 
     close(fifo);
@@ -262,6 +267,12 @@ int searchClientDB_SD10 (CheckIn request, char *nameDB, CheckIn *itemDB) {
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
     int bd_passageiros = open("bd_passageiros.dat", O_RDONLY);
+    if(bd_passageiros == -1) {
+      so_error("SD10", "");
+      exit(1);
+    }
+    so_success("SD10", "");
+
     while(1) {
       int db_read = read(bd_passageiros, itemDB, sizeof(*itemDB));
 
@@ -324,7 +335,7 @@ void checkinClientDB_SD11 (CheckIn *request, char *nameDB, int indexClient, Chec
     }
     so_success("SD11.2", "");
 
-    if(fseek(bd_passageiros1, indexClient, SEEK_SET) != 0) {
+    if(fseek(bd_passageiros1, indexClient * sizeof(itemDB), SEEK_SET) != 0) {
       so_error("SD11.3", "");
       kill(request->pidCliente, SIGHUP);
       exit(1);
