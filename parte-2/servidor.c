@@ -380,6 +380,7 @@ void closeSessionDB_SD13 (CheckIn clientRequest, char *nameDB, int indexClient) 
     clientRequest.pidCliente = -1;
     clientRequest.pidServidorDedicado = -1;
     FILE* db_conn = fopen("bd_passageiros.dat", "r+b");
+
     if(db_conn == NULL) {
       so_error("SD13.1", "");
       exit(1);
@@ -395,6 +396,7 @@ void closeSessionDB_SD13 (CheckIn clientRequest, char *nameDB, int indexClient) 
     fwrite(&clientRequest.nif, sizeof(clientRequest.nif), 1, db_conn);
 
     fclose(db_conn);
+    so_success("SD13", "");
     so_debug("> [pidCliente:%d, pidServidorDedicado:%d]", clientRequest.pidCliente, 
                                                           clientRequest.pidServidorDedicado);
     exit(1);
