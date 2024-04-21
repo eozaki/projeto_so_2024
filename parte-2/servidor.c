@@ -324,20 +324,20 @@ void checkinClientDB_SD11 (CheckIn *request, char *nameDB, int indexClient, Chec
     so_debug("> [nome:%s, nrVoo:%s, pidServidorDedicado:%d]", request->nome,
                                                 request->nrVoo, request->pidServidorDedicado);
 
-    FILE* db_conn = fopen("bd_passageiros.dat", "r+b");
-    if(db_conn == NULL) {
+    FILE* db_conn = fopen(nameDB, "r+");
+    if(!db_conn) {
       so_error("SD11.2", "");
       kill(request->pidCliente, SIGHUP);
       exit(1);
     }
 
-    if(fseek(db_conn, indexClient, SEEK_SET) != 0) {
+    if(fseek(db_conn, indexClient * sizeof(CheckIn), SEEK_SET) != 0) {
       so_error("SD11.3", "");
       kill(request->pidCliente, SIGHUP);
       exit(1);
     }
 
-    int write_result = fwrite(&request, sizeof(request), 1, db_conn);
+    int write_result = fwrite(request, sizeof(CheckIn), 1, db_conn);
     fclose(db_conn);
 
     if(write_result <= 0) {
@@ -379,7 +379,7 @@ void closeSessionDB_SD13 (CheckIn clientRequest, char *nameDB, int indexClient) 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
     clientRequest.pidCliente = -1;
     clientRequest.pidServidorDedicado = -1;
-    FILE* db_conn = fopen("bd_passageiros.dat", "r+b");
+    FILE* db_conn = fopen(nameDB, "r+");
 
     if(db_conn == NULL) {
       so_error("SD13.1", "");
@@ -387,16 +387,18 @@ void closeSessionDB_SD13 (CheckIn clientRequest, char *nameDB, int indexClient) 
     }
     so_success("SD13.1", "");
 
-    if(fseek(db_conn, indexClient, SEEK_SET) != 0) {
+    if(fseek(db_conn, indexClient * sizeof(CheckIn), SEEK_SET) != 0) {
       so_error("SD13.2", "");
       exit(1);
     }
     so_success("SD13.2", "");
     
-    fwrite(&clientRequest.nif, sizeof(clientRequest.nif), 1, db_conn);
+    if(fwrite(&clientRequest, sizeof(CheckIn), 1, db_conn) != 1)
+      so_error("SD13.3", "");
+    else
+      so_success("SD13", "");
 
     fclose(db_conn);
-    so_success("SD13", "");
     so_debug("> [pidCliente:%d, pidServidorDedicado:%d]", clientRequest.pidCliente, 
                                                           clientRequest.pidServidorDedicado);
     exit(1);
