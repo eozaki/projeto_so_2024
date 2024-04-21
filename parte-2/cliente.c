@@ -76,8 +76,27 @@ CheckIn getDadosPedidoUtilizador_C3_C4 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    printf("IscteFlight: Check-in Online\n");
+    printf("----------------------------\n\n");
+    printf("Introduza o NIF do passageiro: ");
+    char nif[9];
+    fgets(nif, 10, stdin);
+    if(nif == NULL) {
+      so_error("C3", "");
+      exit(1);
+    }
+    request.nif = atoi(nif);
+
+    printf("Introduza Senha do passageiro: ");
+    if(scanf("%40s", request.senha) < 1) {
+      so_error("C3", "");
+      exit(1);
+    }
+
+    request.pidCliente = getpid();
 
     so_debug("> [@return nif:%d, senha:%s, pidCliente:%d]", request.nif, request.senha, request.pidCliente);
+    so_success("C4", "%d %s %d", request.nif, request.senha, request.pidCliente);
     return request;
 }
 
@@ -91,7 +110,29 @@ void writeRequest_C5 (CheckIn request, char *nameFifo) {
                                         request.nif, request.senha, request.pidCliente, nameFifo);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    FILE* fifo = fopen(nameFifo, "r+");
+    if(!fifo) {
+      so_error("C5", "");
+    }
 
+    char nif_str[10];
+    sprintf(nif_str, "%d\n", request.nif);
+    int success = fwrite(nif_str, 1, 10 * sizeof(char), fifo);
+    if(success <= 0) {
+      so_error("C5", "");
+      exit(1);
+    }
+
+    char senha_str[41];
+    strcpy(senha_str, request.senha);
+    strcat(senha_str, "\n");
+    success = fwrite(senha_str, 1, 41 * sizeof(char), fifo);
+    if(success <= 0) {
+      so_error("C5", "");
+      exit(1);
+    }
+
+    fclose(fifo);
     so_debug(">");
 }
 
@@ -103,7 +144,8 @@ void configureTimer_C6 (int tempoEspera) {
     so_debug("< [@param tempoEspera:%d]", tempoEspera);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
-
+    alarm(tempoEspera);
+    so_success("C6", "Espera resposta em %d segundos", tempoEspera);
     so_debug(">");
 }
 
