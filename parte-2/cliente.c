@@ -58,6 +58,10 @@ void triggerSignals_C2 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    signal(SIGUSR1, trataSinalSIGUSR1_C8);
+    signal(SIGHUP, trataSinalSIGHUP_C9);
+    signal(SIGINT, trataSinalSIGINT_C10);
+    signal(SIGALRM, trataSinalSIGALRM_C11);
 
     so_debug(">");
 }
