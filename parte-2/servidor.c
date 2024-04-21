@@ -299,6 +299,7 @@ int searchClientDB_SD10 (CheckIn request, char *nameDB, CheckIn *itemDB) {
     }
 
     close(bd_passageiros);
+    so_success("SD10", "");
 
     so_debug("> [@return:%d, nome:%s, nrVoo:%s]", indexClient, itemDB->nome, itemDB->nrVoo);
     return indexClient;
