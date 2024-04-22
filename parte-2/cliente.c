@@ -47,6 +47,22 @@ void checkExistsFifoServidor_C1 (char *nameFifo) {
     so_debug("< [@param nameFifo:%s]", nameFifo);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    struct stat fs;
+    int file_mode;
+
+    file_mode = stat(nameFifo, &fs);
+
+    if(file_mode == -1) {
+        so_error("C1", "");
+        exit(1);
+    }
+
+    if(access(nameFifo, F_OK) == 0 && S_ISFIFO(fs.st_mode))
+        so_success("C1", "");
+    else {
+        so_error("C1", "");
+        exit(1);
+    }
 
     so_debug(">");
 }
@@ -80,8 +96,7 @@ CheckIn getDadosPedidoUtilizador_C3_C4 () {
     printf("----------------------------\n\n");
     printf("Introduza o NIF do passageiro: ");
     char nif[9];
-    fgets(nif, 10, stdin);
-    if(nif == NULL) {
+    if(fgets(nif, 9, stdin) == NULL) {
       so_error("C3", "");
       exit(1);
     }
