@@ -95,8 +95,8 @@ CheckIn getDadosPedidoUtilizador_C3_C4 () {
     printf("IscteFlight: Check-in Online\n");
     printf("----------------------------\n\n");
     printf("Introduza o NIF do passageiro: ");
-    char nif[9];
-    if(fgets(nif, 9, stdin) == NULL) {
+    char nif[20];
+    if(fgets(nif, 20, stdin) == NULL || atoi(nif) >= 1000000000) {
       so_error("C3", "");
       exit(1);
     }
@@ -118,6 +118,7 @@ CheckIn getDadosPedidoUtilizador_C3_C4 () {
 /**
  * @brief C5       Ler a descrição da tarefa C5 no enunciado
  * @param request  Elemento com os dados a enviar
+A
  * @param nameFifo O nome do FIFO do servidor (i.e., FILE_REQUESTS)
  */
 void writeRequest_C5 (CheckIn request, char *nameFifo) {
