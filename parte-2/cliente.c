@@ -95,7 +95,7 @@ CheckIn getDadosPedidoUtilizador_C3_C4 () {
     printf("IscteFlight: Check-in Online\n");
     printf("----------------------------\n\n");
     printf("Introduza o NIF do passageiro: ");
-    if(scanf("%d/", &request.nif) != 1 || request.nif >= 1000000000) {
+    if(scanf("%d/", &request.nif) != 1 || request.nif >= 1000000000 || request.nif <= 0) {
       so_error("C3", "");
       exit(1);
     }
