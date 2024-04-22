@@ -127,26 +127,17 @@ void writeRequest_C5 (CheckIn request, char *nameFifo) {
     FILE* fifo = fopen(nameFifo, "r+");
     if(!fifo) {
       so_error("C5", "");
-    }
-
-    char nif_str[10];
-    sprintf(nif_str, "%d\n", request.nif);
-    int success = fwrite(nif_str, 1, 10 * sizeof(char), fifo);
-    if(success <= 0) {
-      so_error("C5", "");
       exit(1);
     }
 
-    char senha_str[41];
-    strcpy(senha_str, request.senha);
-    strcat(senha_str, "\n");
-    success = fwrite(senha_str, 1, 41 * sizeof(char), fifo);
-    if(success <= 0) {
+    fprintf(fifo, "%d\n%s\n%d\n", request.nif, request.senha, request.pidCliente);
+    if(fwrite(&request, sizeof(CheckIn), 1, fifo) != 1) {
       so_error("C5", "");
       exit(1);
     }
 
     fclose(fifo);
+    so_success("C5", "");
     so_debug(">");
 }
 
