@@ -4,8 +4,11 @@
  ** Aluno: Nº: 122088       Nome: Erick Cordeiro Ozaki
  ** Nome do Módulo: servidor.c
  ** Descrição/Explicação do Módulo:
- **
- **
+ ** Verifica existencia da database com os dados sobre reservas dos passageiros;
+ ** Garante a existencia dum ficheiro de entrada de dados (FIFO) a ser alimentado pelo
+ ** programa cliente;
+ ** Le os pedidos presentes no FIFO e os processa adequadamente para, por fim,
+ ** colocá-los na base de dados do sistema;
  ******************************************************************************/
 
 // #define SO_HIDE_DEBUG                // Uncomment this line to hide all @DEBUG statements

@@ -4,8 +4,10 @@
  ** Aluno: Nº: 122088       Nome: Erick Cordeiro Ozaki
  ** Nome do Módulo: cliente.c
  ** Descrição/Explicação do Módulo:
- **
- **
+ ** Verifica pela existencia do ficheiro FIFO do servidor, onde devem ser colocados os
+ ** pedidos de check in nos voos;
+ ** Identifica os utilizador através dos dados fornecidos e verifica sua autenticidade com senha;
+ ** Escreve o pedido do check in no ficheiro FIFO e aguarda por resposta do servidor dentro do tempo limite;
  ******************************************************************************/
 
 // #define SO_HIDE_DEBUG                // Uncomment this line to hide all @DEBUG statements
