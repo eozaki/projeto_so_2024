@@ -397,7 +397,7 @@ void closeSessionDB_SD13 (CheckIn clientRequest, char *nameDB, int indexClient) 
     if(fwrite(&clientRequest, sizeof(CheckIn), 1, db_conn) != 1)
       so_error("SD13.3", "");
     else
-      so_success("SD13", "");
+      so_success("SD13.3", "");
 
     fclose(db_conn);
     so_debug("> [pidCliente:%d, pidServidorDedicado:%d]", clientRequest.pidCliente, 
