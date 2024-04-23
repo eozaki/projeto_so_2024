@@ -134,10 +134,10 @@ CheckIn readRequest_S4 (char *nameFifo) {
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
     FILE* fifo = fopen(nameFifo, "r");
-     if(!fifo) {
-       so_error("S4", "");
-       deleteFifoAndExit_S7();
-     }
+    if(!fifo) {
+        so_error("S4", "");
+        deleteFifoAndExit_S7();
+    }
 
     int read_data = fscanf(fifo, "%d %s %d", &request.nif, request.senha, &request.pidCliente);
     fclose(fifo);
