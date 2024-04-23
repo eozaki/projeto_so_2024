@@ -395,7 +395,7 @@ void closeSessionDB_SD13 (CheckIn clientRequest, char *nameDB, int indexClient) 
     }
     so_success("SD13.1", "");
 
-    if(fseek(db_conn, indexClient * sizeof(CheckIn), SEEK_SET) != 0) {
+    if(fseek(db_conn, (indexClient - 1) * sizeof(CheckIn), SEEK_SET) != 0) {
       so_error("SD13.2", "");
       exit(1);
     }
