@@ -76,10 +76,16 @@ void triggerSignals_C2 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
-    signal(SIGUSR1, trataSinalSIGUSR1_C8);
-    signal(SIGHUP, trataSinalSIGHUP_C9);
-    signal(SIGINT, trataSinalSIGINT_C10);
-    signal(SIGALRM, trataSinalSIGALRM_C11);
+    if(
+        signal(SIGUSR1, trataSinalSIGUSR1_C8) == SIG_ERR
+        ||  signal(SIGHUP, trataSinalSIGHUP_C9) == SIG_ERR
+        ||  signal(SIGINT, trataSinalSIGINT_C10) == SIG_ERR
+        ||  signal(SIGALRM, trataSinalSIGALRM_C11) == SIG_ERR
+      ) {
+      so_error("C2", "");
+      exit(1);
+    }
+    so_success("C2", "");
 
     so_debug(">");
 }
