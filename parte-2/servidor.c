@@ -339,7 +339,7 @@ void checkinClientDB_SD11 (CheckIn *request, char *nameDB, int indexClient, Chec
     }
     so_success("SD11.2", "");
 
-    if(fseek(db_conn, indexClient * sizeof(CheckIn), SEEK_SET) != 0) {
+    if(fseek(db_conn, (indexClient - 1) * sizeof(CheckIn), SEEK_SET) != 0) {
       so_error("SD11.3", "");
       kill(request->pidCliente, SIGHUP);
       exit(1);
@@ -355,7 +355,6 @@ void checkinClientDB_SD11 (CheckIn *request, char *nameDB, int indexClient, Chec
       exit(1);
     }
     so_success("SD11.4", "");
-
 }
 
 /**
