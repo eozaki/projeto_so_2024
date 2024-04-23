@@ -113,8 +113,11 @@ void triggerSignals_S3 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
-    signal(SIGINT, trataSinalSIGINT_S6);
-    signal(SIGCHLD, trataSinalSIGCHLD_S8);
+    if(signal(SIGINT, trataSinalSIGINT_S6) == SIG_ERR || signal(SIGCHLD, trataSinalSIGCHLD_S8) == SIG_ERR) {
+      so_error("S3", "");
+      deleteFifoAndExit_S7();
+    }
+    so_success("S3", "");
 
     so_debug(">");
 }
@@ -273,10 +276,12 @@ int searchClientDB_SD10 (CheckIn request, char *nameDB, CheckIn *itemDB) {
       so_error("SD10", "");
       exit(1);
     }
+    so_success("SD10", "");
 
     while(1) {
       int db_read = read(bd_passageiros, itemDB, sizeof(*itemDB));
 
+      indexClient++;
       if(db_read < 0) {
         so_error("SD10.1", "");
         kill(request.pidCliente, SIGHUP);
@@ -293,16 +298,14 @@ int searchClientDB_SD10 (CheckIn request, char *nameDB, CheckIn *itemDB) {
           close(bd_passageiros);
           break;
         } else {
-          so_error("SD10.3", "Cliente %d: Senha errada", indexClient);
+          so_error("SD10.3", "Cliente %d: Senha errada", itemDB->nif);
           kill(request.pidCliente, SIGHUP);
           exit(1);
         }
       }
-      indexClient++;
     }
 
     close(bd_passageiros);
-    so_success("SD10", "");
 
     so_debug("> [@return:%d, nome:%s, nrVoo:%s]", indexClient, itemDB->nome, itemDB->nrVoo);
     return indexClient;
@@ -334,12 +337,14 @@ void checkinClientDB_SD11 (CheckIn *request, char *nameDB, int indexClient, Chec
       kill(request->pidCliente, SIGHUP);
       exit(1);
     }
+    so_success("SD11.2", "");
 
     if(fseek(db_conn, indexClient * sizeof(CheckIn), SEEK_SET) != 0) {
       so_error("SD11.3", "");
       kill(request->pidCliente, SIGHUP);
       exit(1);
     }
+    so_success("SD11.3", "");
 
     int write_result = fwrite(request, sizeof(CheckIn), 1, db_conn);
     fclose(db_conn);
