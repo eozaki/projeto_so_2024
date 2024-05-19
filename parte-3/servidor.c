@@ -112,13 +112,39 @@ int initShm_S1 () {
     else {
         so_success("S1.1", "");
 
-        shmId = shmget(IPCKEY, O_RDWR, 0600);
+        shmId = shmget(IPC_KEY, sizeof(DadosServidor), 0);
         if(shmId < 0)
             so_error("S1.2", "");
         else {
             so_success("S1.2", "");
-            database = shmId;
+            if(database = shmat(shmId, NULL, 0))
+              so_success("S1.2.1", "%d", shmId);
+            else {
+              shmId = RETURN_ERROR;
+              so_error("S1.2.1", "");
+            }
+            return shmId;
         }
+        if(errno != ENOENT) {
+          so_error("S1.3", "");
+          return RETURN_ERROR;
+        } else
+          so_success("S1.3", "");
+
+        shmId = shmget(IPC_KEY, sizeof(CheckIn) * MAX_PASSENGERS + sizeof(Voo) * MAX_FLIGHTS, IPC_CREAT | IPC_EXCL);
+        if(shmId < 0) {
+          so_error("S1.4", "");
+          return RETURN_ERROR;
+        } else
+          so_success("S1.4", "%d", shmId);
+
+        CheckIn* firstPassenger = shmat(shmId, NULL, 0);
+        Voo* firstFlight = firstPassenger + MAX_PASSENGERS * sizeof(CheckIn);
+
+        for(CheckIn* p = firstPassenger; p != firstPassenger + MAX_PASSENGERS * sizeof(CheckIn); p++) p->nif=PASSENGER_NOT_FOUND;
+        //for(Voo* v = firstFlight; v != firstFlight + MAX_FLIGHTS * sizeof(Voo); v++) strcpy(v->nrVoo, FLIGHT_NOT_FOUND);
+
+        so_success("S1.5", "");
     }
 
     so_debug("> [@return:%d]", shmId);

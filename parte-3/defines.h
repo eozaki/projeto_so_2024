@@ -15,6 +15,6 @@
     /**
      * KEY to be used on all Linux IPC get operations
      */
-    #define IPC_KEY 0x0a123456      // Suggestion: Replace with your student number
+    #define IPC_KEY 0x0a122088      // Suggestion: Replace with your student number
 
 #endif // __DEFINES_H__
