@@ -104,6 +104,22 @@ int initShm_S1 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    int passageirosExists = access("bd_passageiros.dat", F_OK) == 0 && access("bd_passageiros.dat", W_OK) == 0 && access("bd_passageiros.dat", R_OK) == 0;
+    int voosExists = access("bd_voos.dat", F_OK) == 0 && access("bd_voos.dat", W_OK) == 0 && access("bd_voos.dat", R_OK) == 0;
+
+    if(!(passageirosExists && voosExists))
+        so_error("S1.1", "");
+    else {
+        so_success("S1.1", "");
+
+        shmId = shmget(IPCKEY, O_RDWR, 0600);
+        if(shmId < 0)
+            so_error("S1.2", "");
+        else {
+            so_success("S1.2", "");
+            database = shmId;
+        }
+    }
 
     so_debug("> [@return:%d]", shmId);
     return shmId;
