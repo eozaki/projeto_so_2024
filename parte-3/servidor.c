@@ -117,7 +117,7 @@ int initShm_S1 () {
             so_error("S1.2", "");
         else {
             so_success("S1.2", "");
-            if(database = shmat(shmId, NULL, 0))
+            if((database = shmat(shmId, NULL, 0)) != (DadosServidor*) -1)
               so_success("S1.2.1", "%d", shmId);
             else {
               shmId = RETURN_ERROR;
@@ -146,45 +146,31 @@ int initShm_S1 () {
            strcpy(database->listFlights[i].nrVoo, FLIGHT_NOT_FOUND);
         so_success("S1.5", "");
 
-        int passengers = open(FILE_DATABASE_PASSAGEIROS, O_RDONLY);
-        if(passengers < 0) {
+        FILE* passengers = fopen(FILE_DATABASE_PASSAGEIROS, "r");
+        if(passengers == NULL) {
           so_error("S1.6", "");
           return -1;
         }
-        CheckIn* p;
-        while(1) {
-          db_read = read(passengers, &p, sizeof(CheckIn));
-          if(db_read == 0) break;
-          else if(db_read < 0) {
-            so_error("S1.6", "");
-            return -1;
-          }
-
-          database->listClients[i].nif = p->nif;
-          database->listClients[i].lugarEscolhido = p->lugarEscolhido;
-          strcpy(database->listClients[i].senha, p->senha);
-          strcpy(database->listClients[i].nome, p->nome);
-          strcpy(database->listClients[i].nrVoo, p->nrVoo);
-
-          database->listClients[i].pidCliente = PID_INVALID;
-          database->listClients[i].pidServidorDedicado = PID_INVALID;
+        fread(&database->listClients, sizeof(CheckIn), MAX_PASSENGERS, passengers);
+        if(ferror(passengers) != 0) {
+          so_error("S1.6", "");
+          return -1;
         }
-        free(p);
-        close(passengers);
+        fclose(passengers);
+        so_success("S1.6", "");
 
-//         FILE* flights = fopen(FILE_DATABASE_VOOS, "r");
-//         Voo* v;
-//         for(int i = 0; i < MAX_FLIGHTS && flights != EOF; i++) {
-//           fscanf(flights, "%s %s %s %d %d %d %d %d %d %d %d %d %d %d", v->nrVoo, v->origem, v->destino, v->lugares[0], v->lugares[1], v->lugares[2], v->lugares[3], v->lugares[4], v->lugares[5], v->lugares[6], v->lugares[7], v->lugares[8], v->lugares[9], v->lugares[10]);
-// 
-//           strcpy(database->listFlights[i].nrVoo, v->nrVoo);
-//           strcpy(database->listFlights[i].origem, v->origem);
-//           strcpy(database->listFlights[i].destino, v->destino);
-//           for(int j = 0; j < 11; j++)
-//             database->listFlights[i].lugares[j] = v->lugares[j];
-//         }
-//         free(v);
-//         fclose(flights);
+        FILE* flights = fopen(FILE_DATABASE_VOOS, "r");
+        if(flights == NULL) {
+          so_error("S1.7", "");
+          return -1;
+        }
+        fread(&database->listFlights, sizeof(Voo), MAX_FLIGHTS, flights);
+        if(ferror(flights) != 0) {
+          so_error("S1.7", "");
+          return -1;
+        }
+        fclose(flights);
+        so_success("S1.7", "");
     }
 
     so_debug("> [@return:%d]", shmId);
