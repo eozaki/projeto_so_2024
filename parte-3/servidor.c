@@ -213,7 +213,32 @@ int initSem_S3 () {
     semId = RETURN_ERROR; // Por omissão, retorna erro
     so_debug("<");
 
-    // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    if(semget(IPC_KEY, 3, 0) > 0) {
+      if(semctl(IPC_KEY, IPC_RMID, 0) == RETURN_ERROR) {
+        so_error("S3.1", "");
+        return semId;
+      }
+      so_success("S3.1", "");
+    }
+
+    semId = semget(IPC_KEY, 3, IPC_CREAT | IPC_EXCL);
+    if(msgId > 0) {
+      so_success("S3.2", "%d", semId);
+    } else {
+      so_error("S3.2", "");
+      return semId;
+    }
+
+    int sem1 = semctl(semId, SEM_PASSAGEIROS, SETVAL, 1);
+    int sem2 = semctl(semId, SEM_VOOS, SETVAL, 1);
+    int sem3 = semctl(semId, SEM_NR_SRV_DEDICADOS, SETVAL, 0);
+
+    if(sem1 < 0 || sem2 < 0 || sem3 < 0) {
+      so_error("S3.3", "");
+      return -1;
+    }
+
+    so_success("S3.3", "");
 
     so_debug("> [@return:%d]", semId);
     return semId;
