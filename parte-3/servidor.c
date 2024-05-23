@@ -253,6 +253,13 @@ int triggerSignals_S4 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    if(signal(SIGINT, trataSinalSIGINT_S8) == SIG_ERR || signal(SIGCHLD, trataSinalSIGCHLD_S9) == SIG_ERR)
+      so_error("S4", "");
+    else {
+      result = 0;
+      so_success("S4", "");
+    }
+
 
     so_debug("> [@return:%d]", result);
     return result;
