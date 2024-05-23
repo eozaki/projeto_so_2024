@@ -103,7 +103,6 @@ int initShm_S1 () {
     shmId = RETURN_ERROR; // Por omissão, retorna erro
     so_debug("<");
 
-    // Substituir este comentário pelo código da função a ser implementado pelo aluno
     int passageirosExists = access(FILE_DATABASE_PASSAGEIROS, F_OK) == 0 && access(FILE_DATABASE_PASSAGEIROS, W_OK) == 0 && access(FILE_DATABASE_PASSAGEIROS, R_OK) == 0;
     int voosExists = access(FILE_DATABASE_VOOS, F_OK) == 0 && access(FILE_DATABASE_VOOS, W_OK) == 0 && access(FILE_DATABASE_VOOS, R_OK) == 0;
 
@@ -185,7 +184,22 @@ int initMsg_S2 () {
     msgId = RETURN_ERROR; // Por omissão, retorna erro
     so_debug("<");
 
-    // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    if(msgget(IPC_KEY, 0) > 0) {
+      if(msgctl(IPC_KEY, IPC_RMID, 0) == RETURN_ERROR) {
+        so_error("S2.1", "");
+        return msgId;
+      }
+      so_success("S2.1", "");
+    }
+
+    msgId = msgget(IPC_KEY, IPC_CREAT | IPC_EXCL);
+    if(msgId > 0) {
+      so_success("S2.2", "%d", msgId);
+    } else {
+      so_error("S2.2", "");
+      return msgId;
+    }
+
 
     so_debug("> [@return:%d]", msgId);
     return msgId;
