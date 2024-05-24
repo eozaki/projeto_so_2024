@@ -273,10 +273,23 @@ int readRequest_S5 () {
     int result = RETURN_ERROR; // Por omissão, retorna erro
     so_debug("<");
 
-    // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    result = msgrcv(msgId, &clientRequest, sizeof(clientRequest.msgData), MSGTYPE_LOGIN, 0);
+    if(result <= 0) {
+      if(errno == EINTR) return CICLO1_CONTINUE;
+
+      so_error("S5", "");
+      return RETURN_ERROR;
+    } else
+      so_success(
+          "S5",
+          "%d %s %d",
+            clientRequest.msgData.infoCheckIn.nif,
+            clientRequest.msgData.infoCheckIn.senha,
+            clientRequest.msgData.infoCheckIn.pidCliente
+      );
 
     so_debug("> [@return:%d]", result);
-    return result;
+    return 0;
 }
 
 /**
@@ -290,6 +303,19 @@ int createServidorDedicado_S6 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    pid_filho = fork();
+    if(pid_filho == 0) {
+      so_success("S6", "Servidor Dedicado: Nasci");
+      return 0;
+    } else if(pid_filho < 0) {
+      so_error("S6", "");
+      return PID_INVALID;
+    }
+
+    so_success("S6", "Servidor: Iniciei SD %d", pid_filho);
+    nrServidoresDedicados++;
+
+    return pid_filho;
 
     so_debug("> [@return:%d]", pid_filho);
     return pid_filho;
@@ -301,7 +327,21 @@ int createServidorDedicado_S6 () {
 void terminateServidor_S7 () {
     so_debug("<");
 
-    // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    so_success("S7", "Servidor: Start Shutdown");
+
+    if(database == NULL) {
+      so_error("S7.1", "");
+    } else {
+      // S7.1
+      so_success("S7.1", "");
+
+      // S7.2
+      for(int i = 0; i < MAX_PASSENGERS; i++)
+        if(database->listClients[i].pidServidorDedicado > 0) {
+          kill(database->listClients[i].pidServidorDedicado, SIGUSR2);
+          so_success("S7.2", "Servidor: Shutdown SD %d", database->listClients[i].pidServidorDedicado);
+        }
+    }
 
     so_debug(">");
     exit(0);
