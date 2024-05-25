@@ -327,6 +327,7 @@ int createServidorDedicado_S6 () {
 void terminateServidor_S7 () {
     so_debug("<");
 
+    struct sembuf DOWN = { SEM_NR_SRV_DEDICADOS, -nrServidoresDedicados, 0 };
     so_success("S7", "Servidor: Start Shutdown");
 
     if(database == NULL) {
@@ -341,7 +342,31 @@ void terminateServidor_S7 () {
           kill(database->listClients[i].pidServidorDedicado, SIGUSR2);
           so_success("S7.2", "Servidor: Shutdown SD %d", database->listClients[i].pidServidorDedicado);
         }
+      semop(semId, &DOWN, 1);
+      so_success("S7.3", "");
+
+      FILE* pass_db_conn = fopen(FILE_DATABASE_PASSAGEIROS, "wb");
+      FILE* flights_db_conn = fopen(FILE_DATABASE_VOOS, "wb");
+
+      if(!pass_db_conn || !flights_db_conn) {
+        so_error("S7.4", "");
+      } else {
+        int w1 = fwrite(&database->listClients, sizeof(CheckIn), MAX_PASSENGERS, pass_db_conn);
+        int w2 = fwrite(&database->listFlights, sizeof(Voo), MAX_FLIGHTS, flights_db_conn);
+
+        if(w1 + w2 < 0) so_error("S7.4", "");
+        else so_success("S7.4", "");
+
+        fclose(pass_db_conn);
+        fclose(flights_db_conn);
+      }
     }
+
+    shmctl(shmId, IPC_RMID, 0);
+    semctl(semId, IPC_RMID, 0);
+    msgctl(msgId, IPC_RMID, 0);
+
+    so_success("S7.5", "Servidor: End Shutdown");
 
     so_debug(">");
     exit(0);
@@ -355,6 +380,8 @@ void trataSinalSIGINT_S8 (int sinalRecebido) {
     so_debug("< [@param sinalRecebido:%d]", sinalRecebido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    so_success("S8", "");
+    terminateServidor_S7();
 
     so_debug(">");
 }
@@ -367,6 +394,12 @@ void trataSinalSIGCHLD_S9 (int sinalRecebido) {
     so_debug("< [@param sinalRecebido:%d]", sinalRecebido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    pid_t child = wait(NULL);
+
+    struct sembuf UP_BY_ONE = { SEM_NR_SRV_DEDICADOS, 1, 0 };
+    semop(semId, &UP_BY_ONE, 1);
+
+    so_success("S9", "Servidor: Confirmo fim de SD %d", child);
 
     so_debug(">");
 }
@@ -379,7 +412,12 @@ int triggerSignals_SD10 () {
     int result = RETURN_ERROR; // Por omissão, retorna erro
     so_debug("<");
 
-    // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    if(signal(SIGINT, SIG_IGN) == SIG_ERR || signal(SIGUSR1, trataSinalSIGUSR1_SD19) == SIG_ERR || signal(SIGUSR2, trataSinalSIGUSR2_SD20) == SIG_ERR) {
+      so_error("SD10", "");
+    } else {
+      so_success("SD10", "");
+      result = 0;
+    }
 
     so_debug("> [@return:%d]", result);
     return result;
@@ -394,6 +432,18 @@ int searchClientDB_SD11 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    int i;
+    for(i = 0; i < MAX_PASSENGERS; i++)
+      if(clientRequest.msgData.infoCheckIn.nif == database->listClients[i].nif) break;
+
+    if(i >= MAX_PASSENGERS)
+      so_error("SD11.1", "Cliente %d: não encontrado", clientRequest.msgData.infoCheckIn.nif);
+    else if(strcmp(database->listClients[i].senha, clientRequest.msgData.infoCheckIn.senha) != 0)
+      so_error("SD11.3", "Cliente %d: Senha errada", clientRequest.msgData.infoCheckIn.nif);
+    else {
+      so_success("SD11.3", "%d", i);
+      indexClient = i;
+    }
 
     so_debug("> [@return:%d]", indexClient);
     return indexClient;
@@ -408,6 +458,16 @@ int searchFlightDB_SD12 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    int i;
+    for(i = 0; i < MAX_FLIGHTS; i++)
+      if(strcmp(database->listClients[indexClient].nrVoo, database->listFlights[i].nrVoo) == 0) break;
+
+    if(i >= MAX_FLIGHTS)
+      so_error("SD12.1", "Voo %s: não encontrado", database->listClients[indexClient].nrVoo);
+    else {
+      so_success("SD12.2", "%d", i);
+      indexFlight = i;
+    }
 
     so_debug("> [@return:%d]", indexFlight);
     return indexFlight;
@@ -422,6 +482,25 @@ int updateClientDB_SD13 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    so_success("SD13.1", "Start Check-in: %d %d", clientRequest.msgData.infoCheckIn.nif, clientRequest.msgData.infoCheckIn.pidCliente);
+
+    CheckIn c = database->listClients[indexClient];
+    struct sembuf DOWN = { SEM_PASSAGEIROS, -1, 0 };
+    struct sembuf UP = { SEM_PASSAGEIROS, 1, 0 };
+    semop(semId, &DOWN, 1);
+    if(c.pidCliente != PID_INVALID || c.lugarEscolhido != EMPTY_SEAT) {
+      so_error("SD13.2", "Cliente %d: Já fez check-in", c.nif);
+      semop(semId, &UP, 1);
+      return result;
+    }
+    sleep(4);
+    semop(semId, &UP, 1);
+    
+    database->listClients[indexClient].pidServidorDedicado = getpid();
+    database->listClients[indexClient].pidCliente = clientRequest.msgData.infoCheckIn.pidCliente;
+    result = 0;
+
+    so_success("SD13.5", "End Check-in: %d %d", clientRequest.msgData.infoCheckIn.nif, clientRequest.msgData.infoCheckIn.pidCliente);
 
     so_debug("> [@return:%d]", result);
     return result;
@@ -437,6 +516,23 @@ int sendResponseClient_SD14 (int erroValidacoes) {
     so_debug("< [@param erroValidacoes:%d]", erroValidacoes);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    MsgContent msgToSend;
+    msgToSend.msgType = clientRequest.msgData.infoCheckIn.pidCliente;
+    if(erroValidacoes) {
+      so_error("SD14.1", "");
+      msgToSend.msgData.infoCheckIn.pidServidorDedicado = PID_INVALID;
+    } else {
+      so_success("SD14.1", "");
+      msgToSend.msgData.infoCheckIn.pidServidorDedicado = getpid();
+      msgToSend.msgData.infoCheckIn.lugarEscolhido = EMPTY_SEAT;
+      msgToSend.msgData.infoVoo = database->listFlights[indexFlight];
+    }
+
+    result = msgsnd(msgId, &msgToSend, sizeof(msgToSend.msgData), 0);
+    if(!result)
+      so_success("SD14.2", "");
+    else
+      so_error("SD14.2", "");
 
     so_debug("> [@return:%d]", result);
     return result;
@@ -451,6 +547,13 @@ int readResponseClient_SD15 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    int read = msgrcv(msgId, &clientRequest, sizeof(clientRequest.msgData), getpid(), 0);
+    if (read <= 0)
+      so_error("SD15", "");
+    else {
+      so_success("SD15", "%d %d %d", clientRequest.msgData.infoCheckIn.nif, clientRequest.msgData.infoCheckIn.lugarEscolhido, clientRequest.msgData.infoCheckIn.pidCliente);
+      result = 0;
+    }
 
     so_debug("> [@return:%d]", result);
     return result;
@@ -465,6 +568,32 @@ int updateFlightDB_SD16 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    so_success("SD16.1", "Start Reserva lugar: %s %d %d", clientRequest.msgData.infoCheckIn.nrVoo, clientRequest.msgData.infoCheckIn.nif, clientRequest.msgData.infoCheckIn.lugarEscolhido);
+    
+    struct sembuf DOWN = { SEM_VOOS, -1, 0 };
+    struct sembuf UP = { SEM_VOOS, 1, 0 };
+    semop(semId, &DOWN, 1);
+    if(database->listFlights[indexFlight].lugares[clientRequest.msgData.infoCheckIn.lugarEscolhido] != EMPTY_SEAT) {
+      so_error("SD16.2", "Cliente %d: Lugar já estava ocupado", clientRequest.msgData.infoCheckIn.nif);
+      semop(semId, &UP, 1);
+      return result;
+    }
+    sleep(4);
+    database->listFlights[indexFlight].lugares[clientRequest.msgData.infoCheckIn.lugarEscolhido] =
+      clientRequest.msgData.infoCheckIn.nif;
+
+    semop(semId, &UP, 1);
+    database->listClients[indexClient].lugarEscolhido = clientRequest.msgData.infoCheckIn.lugarEscolhido;
+
+    result = 0;
+
+    so_success(
+        "SD16.6",
+        "End Reserva lugar: %s %d %d",
+        database->listFlights[indexFlight].nrVoo, 
+        database->listClients[indexClient].nif,
+        clientRequest.msgData.infoCheckIn.lugarEscolhido
+        );
 
     so_debug("> [@return:%d]", result);
     return result;
@@ -479,6 +608,16 @@ int sendConfirmationClient_SD17 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    MsgContent msgToSend;
+    msgToSend.msgType = clientRequest.msgData.infoCheckIn.pidCliente;
+    msgToSend.msgData.infoCheckIn.pidServidorDedicado = getpid();
+    msgToSend.msgData.infoCheckIn.lugarEscolhido = clientRequest.msgData.infoCheckIn.lugarEscolhido;
+    strcpy(msgToSend.msgData.infoVoo.origem, clientRequest.msgData.infoVoo.origem);
+    strcpy(msgToSend.msgData.infoVoo.destino, clientRequest.msgData.infoVoo.destino);
+    result = msgsnd(msgId, &msgToSend, sizeof(msgToSend.msgData), 0);
+
+    if(result) so_error("SD17", "");
+    else so_success("SD17", "");
 
     so_debug("> [@return:%d]", result);
     return result;
@@ -491,6 +630,12 @@ void terminateServidorDedicado_SD18 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    if(indexClient >= 0) {
+      database->listClients[indexClient].pidCliente = PID_INVALID;
+      database->listClients[indexClient].pidServidorDedicado = PID_INVALID;
+    }
+
+    so_success("SD18", "");
 
     so_debug(">");
     exit(0);
@@ -504,6 +649,8 @@ void trataSinalSIGUSR1_SD19 (int sinalRecebido) {
     so_debug("< [@param sinalRecebido:%d]", sinalRecebido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    so_success("SD19", "SD: Recebi pedido do Cliente para terminar");
+    terminateServidorDedicado_SD18();
 
     so_debug(">");
 }
