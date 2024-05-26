@@ -155,6 +155,8 @@ void configureTimer_C5 (int tempoEspera) {
     so_debug("< [@param tempoEspera:%d]", tempoEspera);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    alarm(tempoEspera);
+    so_success("C5", "Espera resposta em %d segundos", tempoEspera);
 
     so_debug(">");
 }
