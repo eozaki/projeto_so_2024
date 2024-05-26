@@ -201,6 +201,43 @@ int trataResponseSD_C7 () {
       exit(1);
     }
 
+    char emptySeatsString[MAX_SEATS * 3];
+    strcpy(emptySeatsString, "");
+
+    if(clientRequest.msgData.infoCheckIn.lugarEscolhido != EMPTY_SEAT) {
+      so_success("C7.3", "Reserva concluída: %s %s %d", clientRequest.msgData.infoVoo.origem, clientRequest.msgData.infoVoo.destino, clientRequest.msgData.infoCheckIn.lugarEscolhido);
+      exit(0);
+    } else {
+      if(nrTentativasEscolhaLugar == 0) so_success("C7.4.1", "");
+      else so_error("C7.4.1", "Erro na reserva de lugar");
+    }
+
+    printf("IscteFlight: Voo %s\n", clientRequest.msgData.infoVoo.nrVoo);
+    printf("----------------------------\n");
+    for(int i = 0; i < MAX_SEATS; i++) {
+      if(clientRequest.msgData.infoVoo.lugares[i] == EMPTY_SEAT) {
+        char emptySeat[1];
+        if(strcmp(emptySeatsString, "") != 0) strcat(emptySeatsString, ",");
+        sprintf(emptySeat, " %d", i);
+        strcat(emptySeatsString, emptySeat);
+      }
+    }
+    printf("Lugares disponíveis:%s", emptySeatsString);
+    printf("\nIntroduza o lugar que deseja reservar: ");
+    int chosenSeat;
+    if(scanf("%d", &chosenSeat) < 1) {
+      so_error("C7.4.3", "");
+      return -1;
+    }
+
+    if(chosenSeat >= MAX_SEATS || clientRequest.msgData.infoVoo.lugares[chosenSeat] != EMPTY_SEAT) {
+      so_error("C7.4.3", "");
+      return -1;
+    }
+
+    so_success("C7.4.3", "%d", chosenSeat);
+    result = chosenSeat;
+    nrTentativasEscolhaLugar++;
     so_debug("> [@return:%d]", result);
     return result;
 }
