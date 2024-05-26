@@ -324,6 +324,8 @@ void trataSinalSIGALRM_C12 (int sinalRecebido) {
     so_debug("< [@param sinalRecebido:%d]", sinalRecebido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    so_error("C12", "Cliente: Timeout");
+    terminateCliente_C9();
 
     so_debug(">");
 }
