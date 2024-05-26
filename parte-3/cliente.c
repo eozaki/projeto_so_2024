@@ -195,6 +195,11 @@ int trataResponseSD_C7 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    alarm(0);
+    if(clientRequest.msgData.infoCheckIn.pidServidorDedicado == PID_INVALID) {
+      so_error("C7.2", "");
+      exit(1);
+    }
 
     so_debug("> [@return:%d]", result);
     return result;
