@@ -63,6 +63,14 @@ int initMsg_C1 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    msgId = msgget(IPC_KEY, 0);
+    if(msgId > 0) {
+      so_success("C1", "%d", msgId);
+    } else {
+      so_error("C1", "");
+      return msgId;
+    }
+
 
     so_debug("> [@return:%d]", msgId);
     return msgId;
