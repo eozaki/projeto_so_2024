@@ -1,9 +1,15 @@
 /******************************************************************************
  ** ISCTE-IUL: Trabalho prático 3 de Sistemas Operativos 2023/2024, Enunciado Versão 1+
  **
- ** Aluno: Nº:       Nome:
+ ** Aluno: Nº: 122088       Nome: Erick Cordeiro Ozaki
  ** Nome do Módulo: servidor.c
  ** Descrição/Explicação do Módulo:
+ **  - Recebe pedidos das aplicações clientes;
+ **  - Cria um servidor dedicado para cada aplicação cliente que faz uma solicitação;
+ **  - Bloqueia acesso de outros servidores dedicados aos recursos (database) quando tem de fazer modificações (e.g.: reservar assentos num voo);
+ **  - Atualiza os dados de acordo com a selação do assento do passageiro;
+ **  - Guarda os dados atualizados nas bases de dadosl
+ **  - 
  **
  **
  ******************************************************************************/

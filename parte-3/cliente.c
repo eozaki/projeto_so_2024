@@ -1,10 +1,16 @@
 /******************************************************************************
  ** ISCTE-IUL: Trabalho prático 3 de Sistemas Operativos 2023/2024, Enunciado Versão 3+
  **
- ** Aluno: Nº:       Nome:
+ ** Aluno: Nº: 122088       Nome: Erick Cordeiro Ozaki
  ** Nome do Módulo: cliente.c
  ** Descrição/Explicação do Módulo:
- **
+ **  - Recebe os pedidos do utilizador;
+ **  - Faz validação primaria dos dados (NIF numerico, valido, e.g.);
+ **  - Organiza os dados fornecidos em objetos compatíveis com o contrato de comunicação;
+ **  - Envia os dados recolhidos para os servidores devidos;
+ **  - Recebe resposta dos servidores e age de acordo com a resposta dada;
+ **  - 
+ **  - 
  **
  ******************************************************************************/
 
