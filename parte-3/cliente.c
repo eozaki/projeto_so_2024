@@ -252,6 +252,17 @@ int sendSeatChoice_C8 (int lugarEscolhido) {
     so_debug("< [@param lugarEscolhido:%d]", lugarEscolhido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    MsgContent msgToSend;
+    msgToSend.msgType = clientRequest.msgData.infoCheckIn.pidServidorDedicado;
+    msgToSend.msgData.infoCheckIn.nif = clientRequest.msgData.infoCheckIn.nif;
+    msgToSend.msgData.infoCheckIn.lugarEscolhido = lugarEscolhido;
+    msgToSend.msgData.infoCheckIn.pidCliente = getpid();
+
+    result = msgsnd(msgId, &msgToSend, sizeof(msgToSend.msgData), 0);
+    if(result == 0)
+      so_success("C8", "%d %d %d", msgToSend.msgData.infoCheckIn.nif, lugarEscolhido, getpid());
+    else
+      so_error("C8", "");
 
     so_debug("> [@return:%d]", result);
     return result;
