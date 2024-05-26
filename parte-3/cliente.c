@@ -170,9 +170,20 @@ int readResponseSD_C6 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    int read = msgrcv(msgId, &clientRequest, sizeof(clientRequest.msgData), getpid(), 0);
+
+    if(read <= 0) so_error("C6", "");
+    else
+      so_success(
+          "C6",
+          "%d %d %d",
+          clientRequest.msgData.infoCheckIn.nif,
+          clientRequest.msgData.infoCheckIn.lugarEscolhido,
+          clientRequest.msgData.infoCheckIn.pidCliente
+          );
 
     so_debug("> [@return:%d]", result);
-    return result;
+    return read <= 0 ? -1 : 0;
 }
 
 /**
