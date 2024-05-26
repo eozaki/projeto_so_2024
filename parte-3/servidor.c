@@ -663,6 +663,11 @@ void trataSinalSIGUSR2_SD20 (int sinalRecebido) {
     so_debug("< [@param sinalRecebido:%d]", sinalRecebido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    so_success("SD20", "SD: Recebi pedido do Servidor para terminar");
+    if(clientRequest.msgData.infoCheckIn.pidCliente != PID_INVALID)
+      kill(clientRequest.msgData.infoCheckIn.pidCliente, SIGHUP);
+
+    terminateServidorDedicado_SD18();
 
     so_debug(">");
 }
