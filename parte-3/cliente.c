@@ -71,7 +71,6 @@ int initMsg_C1 () {
       return msgId;
     }
 
-
     so_debug("> [@return:%d]", msgId);
     return msgId;
 }
@@ -85,6 +84,12 @@ int triggerSignals_C2 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    if(signal(SIGHUP, trataSinalSIGHUP_C10) == SIG_ERR || signal(SIGINT, trataSinalSIGINT_C11) == SIG_ERR || signal(SIGALRM, trataSinalSIGALRM_C12) == SIG_ERR) {
+      so_error("C2", "");
+    } else {
+      so_success("C2", "");
+      result = 0;
+    }
 
     so_debug("> [@return:%d]", result);
     return result;
