@@ -104,7 +104,24 @@ int getDadosPedidoUtilizador_C3 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    printf("IscteFlight: Check-in Online\n");
+    printf("----------------------------\n\n");
+    printf("Introduza o NIF do passageiro: ");
+    if(scanf("%d/", &clientRequest.msgData.infoCheckIn.nif) != 1 || clientRequest.msgData.infoCheckIn.nif >= 1000000000 || clientRequest.msgData.infoCheckIn.nif <= 0) {
+      so_error("C3", "");
+      return result;
+    }
 
+    printf("Introduza Senha do passageiro: ");
+    if(scanf("%40s", clientRequest.msgData.infoCheckIn.senha) < 1) {
+      so_error("C3", "");
+      return result;
+    }
+    result = 0;
+    clientRequest.msgData.infoCheckIn.pidCliente = getpid();
+
+    so_success("C3", "%d %s %d", clientRequest.msgData.infoCheckIn.nif, clientRequest.msgData.infoCheckIn.senha, clientRequest.msgData.infoCheckIn.pidCliente);
+ 
     so_debug("> [@return:%d]", result);
     return result;
 }
