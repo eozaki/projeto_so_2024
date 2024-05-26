@@ -135,6 +135,13 @@ int sendRequest_C4 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    clientRequest.msgType = MSGTYPE_LOGIN;
+    clientRequest.msgData.infoCheckIn.pidCliente = getpid();
+    clientRequest.msgData.infoCheckIn.pidServidorDedicado = PID_INVALID;
+
+    result = msgsnd(msgId, &clientRequest, sizeof(clientRequest.msgData), 0);
+    if(result != 0) so_error("C4", "");
+    else so_success("C4", "");
 
     so_debug("> [@return:%d]", result);
     return result;
