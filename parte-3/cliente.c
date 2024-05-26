@@ -275,6 +275,14 @@ void terminateCliente_C9 () {
     so_debug("<");
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    if(clientRequest.msgData.infoCheckIn.pidServidorDedicado == PID_INVALID) {
+      so_error("C9", "");
+      exit(0);
+    }
+
+    int s = kill(clientRequest.msgData.infoCheckIn.pidServidorDedicado, SIGUSR1);
+    so_success("C9", "");
+    if(s != 0) so_error("C9", "");
 
     so_debug(">");
     exit(0);
