@@ -296,6 +296,8 @@ void trataSinalSIGHUP_C10 (int sinalRecebido) {
     so_debug("< [@param sinalRecebido:%d]", sinalRecebido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    so_success("C10", "Check-in concluído sem sucesso");
+    exit(0);
 
     so_debug(">");
 }
@@ -308,6 +310,8 @@ void trataSinalSIGINT_C11 (int sinalRecebido) {
     so_debug("< [@param sinalRecebido:%d]", sinalRecebido);
 
     // Substituir este comentário pelo código da função a ser implementado pelo aluno
+    so_success("C11", "Cliente: Shutdown");
+    terminateCliente_C9();
 
     so_debug(">");
 }
